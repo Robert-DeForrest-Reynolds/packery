@@ -29,17 +29,11 @@ pack <upload_type> <version_update>
 ```
 
 Upload Types:
-
-r → Upload to PyPI
-
-t → Upload to TestPyPI
-
-a → Upload to both
+ - r → Upload to PyPI
+ - t → Upload to TestPyPI
+ - a → Upload to both
 
 Version Bumps:
-
-\- → Patch (0.0.0 → 0.0.1)
-
-m → Minor (0.0.0 → 0.1.0)
-
-s → Stable/Major (0.0.0 → 1.0.0)
+ - \- → Patch (0.0.0 → 0.0.1)\
+ - m → Minor (0.0.0 → 0.1.0)
+ - s → Stable/Major (0.0.0 → 1.0.0)
