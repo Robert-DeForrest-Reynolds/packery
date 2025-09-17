@@ -34,6 +34,8 @@ Upload Types:
  - a → Upload to both
 
 Version Bumps:
- - \- → Patch (0.0.0 → 0.0.1)\
+ - \- → Patch (0.0.0 → 0.0.1)
  - m → Minor (0.0.0 → 0.1.0)
  - s → Stable/Major (0.0.0 → 1.0.0)
+
+*version bumps are optional, but you must always have an upload type*
