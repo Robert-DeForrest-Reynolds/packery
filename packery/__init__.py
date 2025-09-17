@@ -112,7 +112,9 @@ def package(as_module:bool=False) -> None:
         print("Updating version in pyproject.toml and setup.cfg")
         with open("pyproject.toml", "r") as TOML:
             content = TOML.readlines()
-            previous_version = content[6].strip().split(" = ")[1].replace("\"", "")
+            for line in content:
+                if line.startswith("version"):
+                    previous_version = line.strip().split(" = ")[1].replace("\"", "")
             stable, major, minor = [int(Number) for Number in previous_version.split(".")]
             if version_update in ["s", "m"]:
                 UserInput = input("You sure?\n")
@@ -129,7 +131,9 @@ def package(as_module:bool=False) -> None:
 
         with open("setup.cfg", "r") as CFG:
             content = CFG.readlines()
-            content[2] = f"version = {version}\n"
+            for line in content:
+                if line.startswith(version):
+                    line = f"version = {version}\n"
             
         with open("setup.cfg", "w") as CFG:
             CFG.write("".join(content))
