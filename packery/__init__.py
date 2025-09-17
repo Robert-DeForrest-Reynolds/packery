@@ -85,8 +85,6 @@ def package(as_module:bool=False) -> None:
 
     version = None
 
-    remove_previous_files = False
-
     version_commands = ['s', 'm', '-']
     upload_commands = ['r', 't', 'a']
 
@@ -109,8 +107,6 @@ def package(as_module:bool=False) -> None:
 
     print(f"Upload type: {upload_type}")
     print(f"Version update: {version_update}")
-    
-    if "c" in argv: remove_previous_files = True
 
     if version_update:
         print("Updating version in pyproject.toml and setup.cfg")
