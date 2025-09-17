@@ -15,7 +15,9 @@ pip install -e .
 ```
 
 ### Initialize a Package
-`pack setup`
+```bash
+pack setup
+```
 
 Creates:
  - A virtual environment (build_venv)
