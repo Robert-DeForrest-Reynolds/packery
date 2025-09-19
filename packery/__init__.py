@@ -126,8 +126,8 @@ def package(as_module:bool=False) -> None:
                 version = f"{stable}.{major}.{minor}"
             content[6] = f'version = "{version}"\n'
 
-        with open("pyproject.toml", "w") as TOML:
-            TOML.write("".join(content))
+            with open("pyproject.toml", "w") as TOML:
+                TOML.write("".join(content))
 
         with open("setup.cfg", "r") as CFG:
             content = CFG.readlines()
@@ -135,8 +135,8 @@ def package(as_module:bool=False) -> None:
                 if line.startswith(version):
                     line = f"version = {version}\n"
             
-        with open("setup.cfg", "w") as CFG:
-            CFG.write("".join(content))
+            with open("setup.cfg", "w") as CFG:
+                CFG.write("".join(content))
     else:
         with open("setup.cfg", "r") as CFG:
             version = CFG.readlines()[2].split("=")[1].strip()
