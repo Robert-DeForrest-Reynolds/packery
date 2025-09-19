@@ -91,9 +91,9 @@ def package(as_module:bool=False) -> None:
     dist_dir = Path(path.join(working_directory, "dist"))
     egg_info_dir = Path(path.join(working_directory, "CordForge.egg-info"))
     build_venv = Path(path.join(working_directory, "build_venv"))
-    build_venv_python = path.join(build_venv, "Scripts", "python.exe")
-
-    print(argv)
+    build_venv_python = path.join(build_venv,
+                                  "Scripts" if path.exists(path.join(build_venv, "Scripts")) else "bin",
+                                  "python.exe")
 
     if len(argv) == 2:
         version_update = argv[1] if argv[1] in version_commands else None
