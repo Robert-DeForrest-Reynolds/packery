@@ -109,6 +109,7 @@ def package(as_module:bool=False) -> None:
     print(f"Version update: {version_update}")
 
     if version_update:
+        version:str
         print("Updating version in pyproject.toml and setup.cfg")
         with open("pyproject.toml", "r") as TOML:
             content = TOML.readlines()
@@ -126,20 +127,21 @@ def package(as_module:bool=False) -> None:
                 version = f"{stable}.{major}.{minor}"
             content[6] = f'version = "{version}"\n'
 
-            with open("pyproject.toml", "w") as TOML:
-                TOML.write("".join(content))
+        with open("pyproject.toml", "w") as TOML:
+            TOML.write("".join(content))
 
         with open("setup.cfg", "r") as CFG:
             content = CFG.readlines()
-            for line in content:
-                if line.startswith(version):
-                    line = f"version = {version}\n"
+            for index, line in enumerate(content):
+                if line.strip().startswith("version"):
+                    content[index] = f"version = {version}\n"
             
-            with open("setup.cfg", "w") as CFG:
-                CFG.write("".join(content))
+        with open("setup.cfg", "w") as CFG:
+            CFG.write("".join(content))
     else:
         with open("setup.cfg", "r") as CFG:
             version = CFG.readlines()[2].split("=")[1].strip()
+
 
     print("Removing previous versions dist and .egg-info")
     if dist_dir.exists():
@@ -196,3 +198,13 @@ def setup() -> None:
         with open(setupcfg_path, "w+") as CFG: CFG.write(setup_prefab)
 
     print("Finished setting")
+
+
+if __name__ == "__main__":
+    from sys import argv
+    if argv[1] == "setup":
+        from . import setup
+        setup()
+    if argv[1] in ["package", "pack"]:
+        from . import package
+        package(as_module=True)
