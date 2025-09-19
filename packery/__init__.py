@@ -1,6 +1,6 @@
 from subprocess import run, CalledProcessError
 from pathlib import Path
-from os import path, getcwd
+from os import path, getcwd, listdir
 import shutil
 from sys import argv, exit
 
@@ -23,6 +23,10 @@ setup = scaffolds a package
 example:\n\
 `pack r -`\n\
 upgrades from 0.0.0 to 0.0.1 and uploads to pypi\
+
+example:\n\
+`pack r - test`\n\
+finds and runs tests in `cwd/package_name/tests`, upgrades from 0.0.0 to 0.0.1 and uploads to pypi\
 """
 
 pyproject_prefab = """\
@@ -74,7 +78,17 @@ where = .
 
 """
 
+
+def detect_package(root_dir: str) -> str:
+    for item in listdir(root_dir):
+        full_path = path.join(root_dir, item)
+        if path.isdir(full_path) and path.isfile(path.join(full_path, "__init__.py")):
+            return item
+    raise RuntimeError("No Python package found in root directory.")
+
+
 def package(as_module:bool=False) -> None:
+    testing = False
     if as_module: argv.pop(0)
     if argv[1] in ["-h", "h", "help"]: (print(help_string), exit())
 
@@ -82,6 +96,7 @@ def package(as_module:bool=False) -> None:
     print("Packaging...")
     
     working_directory = getcwd()
+    package_name = detect_package(working_directory)
 
     version = None
 
@@ -89,24 +104,47 @@ def package(as_module:bool=False) -> None:
     upload_commands = ['r', 't', 'a']
 
     dist_dir = Path(path.join(working_directory, "dist"))
-    egg_info_dir = Path(path.join(working_directory, "CordForge.egg-info"))
-    build_venv = Path(path.join(working_directory, "build_venv"))
+    egg_info_dir = Path(path.join(working_directory, f"{package_name}.egg-info"))
+    
+    build_venv_path = path.join(working_directory, "build_venv")
+    build_venv = Path(build_venv_path) if path.exists(build_venv_path) else None
+
+    test_venv_path = path.join(working_directory, "test_venv")
+    test_venv = Path(test_venv_path) if path.exists(test_venv_path) else None
+    if not test_venv: print("You do not have a test_venv in project directory")
+
     build_venv_python = path.join(build_venv,
                                   "Scripts" if path.exists(path.join(build_venv, "Scripts")) else "bin",
-                                  "python.exe")
+                                  "python") if build_venv else None
+    test_venv_python = path.join(test_venv,
+                                  "Scripts" if path.exists(path.join(build_venv, "Scripts")) else "bin",
+                                  "python") if test_venv else None
 
-    if len(argv) == 2:
-        version_update = argv[1] if argv[1] in version_commands else None
+    if len(argv) >= 2:
         upload_type = argv[1] if argv[1] in upload_commands else None
-    if len(argv) == 3:
-        version_update = argv[1] if argv[1] in version_commands else None
-        version_update = (argv[2] if argv[2] in version_commands else None) if version_update == None else version_update
-        
-        upload_type = argv[1] if argv[1] in upload_commands else None
-        upload_type = (argv[2] if argv[2] in upload_commands else None) if upload_type == None else upload_type
+    if len(argv) >= 3:
+        version_update = argv[2] if argv[2] in version_commands else None
+
+    for arg in argv:
+        if arg == "test":
+            testing = True
 
     print(f"Upload type: {upload_type}")
     print(f"Version update: {version_update}")
+
+    print(working_directory)
+    if testing:
+        print("Running tests....")
+        result = run(
+            [test_venv_python, "-m", "pytest", "-v", "-x", f"--cov={path.join(working_directory, package_name)}", "--cov-report=html", path.join(working_directory, package_name, "tests")],
+            capture_output=True,
+            text=True
+        )
+        print(result.stdout)
+        print(result.stderr)
+        if result.returncode != 0:
+            exit()
+
 
     if version_update:
         version:str
