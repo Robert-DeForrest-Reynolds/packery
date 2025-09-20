@@ -15,8 +15,8 @@ dependencies = [
 ]
 
 [project.scripts]
-pack = "packery.__init__:package"
-setup = "packery.__init__:setup"
+packery = "packery.__init__:package"
+psetup = "packery.__init__:setup"
 
 [project.urls]
 Homepage = "https://github.com/Robert-DeForrest-Reynolds/packerys"

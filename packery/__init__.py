@@ -89,7 +89,6 @@ def detect_package(root_dir: str) -> str:
 
 def package(as_module:bool=False) -> None:
     testing = False
-    if as_module: argv.pop(0)
     if argv[1] in ["-h", "h", "help"]: (print(help_string), exit())
 
     print(" ".join(arg for arg in argv))
@@ -99,6 +98,8 @@ def package(as_module:bool=False) -> None:
     package_name = detect_package(working_directory)
 
     version = None
+    version_update = None
+    upload_type = None
 
     version_commands = ['s', 'm', '-']
     upload_commands = ['r', 't', 'a']
@@ -108,6 +109,7 @@ def package(as_module:bool=False) -> None:
     
     build_venv_path = path.join(working_directory, "build_venv")
     build_venv = Path(build_venv_path) if path.exists(build_venv_path) else None
+    if not build_venv: print("You do not have a test_venv in project directory")
 
     test_venv_path = path.join(working_directory, "test_venv")
     test_venv = Path(test_venv_path) if path.exists(test_venv_path) else None
@@ -129,8 +131,10 @@ def package(as_module:bool=False) -> None:
         if arg == "test":
             testing = True
 
-    print(f"Upload type: {upload_type}")
-    print(f"Version update: {version_update}")
+    if upload_type:
+        print(f"Upload type: {upload_type}")
+    if version_update:
+        print(f"Version update: {version_update}")
 
     print(working_directory)
     if testing:
@@ -197,10 +201,12 @@ def package(as_module:bool=False) -> None:
                 shutil.rmtree(item)
 
     print(f"Building: {version}")
-    run([build_venv_python, "-m", "build"], shell=True, check=True)
+    if build_venv:
+        run([build_venv_python, "-m", "build"], shell=True, check=True)
 
     print(f"Uploading: {version}")
     print(upload_type)
+    if not build_venv: return
     if upload_type in ['t', 'a']:
         try:
             run([build_venv_python, "-m", "twine", "upload", "--repository", "testpypi", "dist/*", "--verbose"], shell=True, check=True)
@@ -220,9 +226,14 @@ def setup() -> None:
     print("Setting up a python package project...")
 
     print("Creating build_env...")
-    run(["python", "-m", "venv", "build_venv"], shell=True, check=True)
+    run(["python", "-m", "venv", "build_venv"], check=True)
+    build_venv_python = path.join("build_venv",
+                                  "Scripts" if path.exists(path.join("build_venv", "Scripts")) else "bin",
+                                  "python")
+    if not path.exists(build_venv_python):
+        print("fuck")
     print("Downloading necessary packages to build_env...")
-    run([path.join("build_venv","Scripts","python"), "-m", "pip","install", "--upgrade", "setuptools", "build", "wheel", "twine"], shell=True, check=True)
+    run([build_venv_python, "-m", "pip", "install", "--upgrade", "setuptools", "build", "wheel", "twine"], check=True)
 
     pyproject_path = path.join(working_directory, "pyproject.toml")
     setupcfg_path = path.join(working_directory, "setup.cfg")
@@ -235,7 +246,7 @@ def setup() -> None:
         print("Creating setup.cfg...")
         with open(setupcfg_path, "w+") as CFG: CFG.write(setup_prefab)
 
-    print("Finished setting")
+    print("Finished setting up")
 
 
 if __name__ == "__main__":

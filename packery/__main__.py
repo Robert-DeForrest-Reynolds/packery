@@ -1,5 +1,6 @@
 if __name__ == "__main__":
     from sys import argv
+    print(argv)
     if argv[1] == "setup":
         from . import setup
         setup()
