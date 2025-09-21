@@ -205,7 +205,6 @@ def package(as_module:bool=False) -> None:
         run([build_venv_python, "-m", "build"], shell=True, check=True)
 
     print(f"Uploading: {version}")
-    print(upload_type)
     if not build_venv: return
     if upload_type in ['t', 'a']:
         try:
@@ -230,8 +229,6 @@ def setup() -> None:
     build_venv_python = path.join("build_venv",
                                   "Scripts" if path.exists(path.join("build_venv", "Scripts")) else "bin",
                                   "python")
-    if not path.exists(build_venv_python):
-        print("fuck")
     print("Downloading necessary packages to build_env...")
     run([build_venv_python, "-m", "pip", "install", "--upgrade", "setuptools", "build", "wheel", "twine"], check=True)
 
