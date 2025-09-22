@@ -89,6 +89,7 @@ def detect_package(root_dir: str) -> str:
 
 def package(as_module:bool=False) -> None:
     testing = False
+    if len(argv) == 1: (print("No argument given"), exit())
     if argv[1] in ["-h", "h", "help"]: (print(help_string), exit())
 
     print(" ".join(arg for arg in argv))
